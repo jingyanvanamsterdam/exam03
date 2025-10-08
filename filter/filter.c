@@ -82,26 +82,23 @@ int	main(int argc, char **argv)
 	while (content[i])
 	{
 		start = memmem(content + i, strlen(content), argv[1], len);
-		if (start)
-			printf("start exist %p\n", start);
 		if (!start)
 		{
-			printf("after checking memme. and it doesnt exist\nstrlen=%lu, argv[1]=%s, len=%lu\n", strlen(content), argv[1], len);
-			write(1, content, strlen(content));
+			//printf("after checking memme. and it doesnt exist\nstrlen=%lu, argv[1]=%s, len=%lu\n", strlen(content), argv[1], len);
+			write(1, content + i, strlen(content + i));
 			free(content);
 			free(sign_str);
 			return (0);
 		}
-		printf("%p pointer\n", &content[i]);
 		while (content[i] && &(content[i]) != start)
 		{
 			printf("in content[i]loop\n");
 			write(1, &(content[i]), 1);
 			i++;
 		}
-		printf("%s\n", sign_str);
+//		printf("%s\n", sign_str);
 		write(1, sign_str, len);
-		i += (len - 1);
+		i += len;
 	}
 	free(content);
 	free(sign_str);
