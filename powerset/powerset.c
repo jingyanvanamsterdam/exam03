@@ -1,90 +1,70 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct	s_subset
-{
-	int	*set;
-	int	elements;
-}				t_subset;
-
-void	free_subsets(t_subset *subsets, int count)
-{
-	int	i = 0;
-	while (i < count)
-	{
-		if (subsets[i].set)
-			free(subsets[i].set);
-		i++;
-	}
-}
-
 int	powerset(int *arr, int elements, int num)
 {
-	t_subset *subsets = NULL;
 	int		i = 0;
 	int		count = 0;
+	int		*set = NULL;
+
 	while (i < elements - 1)
 	{
-		subsets = realloc(subsets, sizeof(t_subset) * (count + 1)); // firstly create 1 more subset;
-		if (!subsets)
-			return (free_subsets(subsets, count), 1);
-		// init the set with first number of cur
-		subsets[count].set = realloc(subsets[count].set, sizeof(int));
-		if (!subsets[count].set)
-			return (free_subsets(subsets, count), 1);
+		set = malloc(sizeof(int));
+		if (!set)
+			return (1);
 		int cur = arr[i]; // assign the first number in the arr to check the combos later
-		subsets[count].set[0] = cur;
-		subsets[count].elements = 1;
+		set[0] = cur;
+		count = 1;
+		//printf("out loop i = %d\n", i);
 		if (cur == num)
 		{
+			printf("%d", set[0]);
+			printf("\n");
 			i++;
-			count++;
 		}
 		else if (cur > num)
-		{
-			free(subsets[count].set);
-			subsets[count].set = NULL;
-			subsets[count].elements = 0;
 			i++;
-		}
 		else
 		{
-			//recursion?
-			//if (!powerset(arr + i, elements - 1, num - cur))
-			//	return (1);
-			int	j = i;
-			int	sum = 0;
+			int	j = i + 1;
+			int	sum = cur;
 			while (j < elements)
 			{
 				sum += arr[j];
-				if (sum == num)
+				if (sum <= num)
 				{
-					// set correct break to next i;
-				}
-				else if (sum < num)
-				{
-					// keep adding arr j++; recursion?
+					set = realloc(set, sizeof(int) * (count + 1));
+					if (!set)
+						return (free(set), 1);
+					set[j] = arr[j];
+					count++;
 				}
 				else
-				{
 					sum -= arr[j];
-					j++;
+				j++;
+			}
+			//printf("sum = %d\n", sum);
+			if (sum != num)
+			{
+				free(set);
+				set = NULL;
+			}
+			else if (sum == num)
+			{
+				for (int p = 0; p < count; p++)
+				{
+					printf("%d", set[p]);
+					if (p != count - 1)
+						printf(" ");
+					else
+						printf("\n");
 				}
 			}
-			if (count_subset_sum(&subsets[count]) != num)
-			{
-				free(subsets[count].set);
-				subsets[count].set = NULL;
-				subsets[count].elements = 0;
-				i++;
-			}
-			else
-			{
-				i++;
-				count++;
-			}
+			i++;
 		}
 	}
+	free(set);
+	free(arr);
 	return (0);
 }
 
@@ -99,7 +79,9 @@ int	main(int argc, char **argv)
 		return (1);
 	int i;
 	for (i = 0; i < argc - 2; i++)
+	{
 		arr[i] = atoi(argv[i + 2]);
+	}
 	if (!powerset(arr, i, num))
 		return (1);
 	return (0);
