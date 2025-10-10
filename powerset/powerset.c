@@ -50,7 +50,27 @@ int	powerset(int *arr, int elements, int num)
 		else
 		{
 			//recursion?
-			powerset(arr, elements, num);
+			//if (!powerset(arr + i, elements - 1, num - cur))
+			//	return (1);
+			int	j = i;
+			int	sum = 0;
+			while (j < elements)
+			{
+				sum += arr[j];
+				if (sum == num)
+				{
+					// set correct break to next i;
+				}
+				else if (sum < num)
+				{
+					// keep adding arr j++; recursion?
+				}
+				else
+				{
+					sum -= arr[j];
+					j++;
+				}
+			}
 			if (count_subset_sum(&subsets[count]) != num)
 			{
 				free(subsets[count].set);
@@ -64,9 +84,8 @@ int	powerset(int *arr, int elements, int num)
 				count++;
 			}
 		}
-		
-		
 	}
+	return (0);
 }
 
 int	main(int argc, char **argv)
