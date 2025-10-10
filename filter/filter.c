@@ -30,7 +30,7 @@ int	main(int argc, char **argv)
 		perror("calloc fail at creating content.");
 		return 1;
 	}
-	tmp = calloc(BUFFER_SIZE + 1, sizeof(char));
+	tmp = calloc(BUFFER_SIZE, sizeof(char));
 	if (!tmp)
 	{
 		perror("calloc fail at creating tmp buffer.");
@@ -58,6 +58,7 @@ int	main(int argc, char **argv)
 		}
 		memmove(content + prev, tmp, byte);
 		prev += byte;
+		content[prev] = '\0';
 	}
 	free(tmp);
 
@@ -79,21 +80,20 @@ int	main(int argc, char **argv)
 	while (len > 0)
 		sign_str[--len] = '*';
 	len = strlen(sign_str);
-	while (content[i])
+	size_t content_len = prev;
+	while (i < content_len)
 	{
-		start = memmem(content + i, strlen(content), argv[1], len);
+		start = memmem(content + i, content_len - i, argv[1], len);
 		if (!start)
 		{
 			//printf("after checking memme. and it doesnt exist\nstrlen=%lu, argv[1]=%s, len=%lu\n", strlen(content), argv[1], len);
 			write(1, content + i, strlen(content + i));
-			free(content);
-			free(sign_str);
-			return (0);
+			break;
 		}
 		while (content[i] && &(content[i]) != start)
 		{
 			printf("in content[i]loop\n");
-			write(1, &(content[i]), 1);
+			write(1, content + i, 1);
 			i++;
 		}
 //		printf("%s\n", sign_str);
