@@ -1,70 +1,70 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int	powerset(int *arr, int elements, int num)
+typedef struct	s_set
 {
-	int		i = 0;
-	int		count = 0;
-	int		*set = NULL;
+	int	*set;
+	int	count;
+	int	sum;
+}				t_set;
 
-	while (i < elements - 1)
+void	print_set(t_set *set)
+{
+	int	 i = 0;
+
+	while (i < set->count)
 	{
-		set = malloc(sizeof(int));
-		if (!set)
-			return (1);
-		int cur = arr[i]; // assign the first number in the arr to check the combos later
-		set[0] = cur;
-		count = 1;
-		//printf("out loop i = %d\n", i);
-		if (cur == num)
-		{
-			printf("%d", set[0]);
+		printf("%d", set->set[i]);
+		if (i == set->count - 1)
 			printf("\n");
-			i++;
+		else
+			printf(" ");
+		i++;
+	}
+}
+
+void reset_set(t_set *set)
+{
+	if (set->set)
+		free(set->set);
+	set->set = NULL;
+	set->count = 0;
+	set->sum = 0;
+}
+
+int	powerset(int *arr, int elements, int num, t_set *set)
+{
+	int	i = 0;
+
+	while (i < elements) // elements - 1 or elements
+	{
+		set->sum += arr[i];
+		set->count ++;
+		if (set->sum <= num)
+		{
+			set->set = realloc(set->set, sizeof(int) *(set->count));
+			if (!set->set)
+				return (reset_set(set), 1);
+			set->set[set->count - 1] = arr[i];
+			if (set->sum == num)
+			{
+				print_set(set);
+				i++;
+			}
+			else if (powerset(&arr[i + 1], (elements - 1 - i), num, set) == 0)
+			{
+				set->sum -= arr[i];
+				set->count --;
+				i++;
+			}	
 		}
-		else if (cur > num)
-			i++;
 		else
 		{
-			int	j = i + 1;
-			int	sum = cur;
-			while (j < elements)
-			{
-				sum += arr[j];
-				if (sum <= num)
-				{
-					set = realloc(set, sizeof(int) * (count + 1));
-					if (!set)
-						return (free(set), 1);
-					set[j] = arr[j];
-					count++;
-				}
-				else
-					sum -= arr[j];
-				j++;
-			}
-			//printf("sum = %d\n", sum);
-			if (sum != num)
-			{
-				free(set);
-				set = NULL;
-			}
-			else if (sum == num)
-			{
-				for (int p = 0; p < count; p++)
-				{
-					printf("%d", set[p]);
-					if (p != count - 1)
-						printf(" ");
-					else
-						printf("\n");
-				}
-			}
+			set->sum -= arr[i];
+			set->count --;
 			i++;
 		}
 	}
-	free(set);
-	free(arr);
 	return (0);
 }
 
@@ -82,7 +82,16 @@ int	main(int argc, char **argv)
 	{
 		arr[i] = atoi(argv[i + 2]);
 	}
-	if (!powerset(arr, i, num))
+	t_set	*set;
+	set = malloc(sizeof(t_set));
+	if (!set)
 		return (1);
+	set->count = 0;
+	set->set = NULL;
+	set->sum = 0;
+	if (!powerset(arr, i, num, set))
+		return (1);
+	reset_set(set);
+	free(arr);
 	return (0);
 }
