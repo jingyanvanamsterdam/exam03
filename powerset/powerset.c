@@ -38,6 +38,14 @@ int	powerset(int *arr, int elements, int num, t_set *set)
 
 	while (i < elements) // elements - 1 or elements
 	{
+		printf("i = %d\n", i);
+		printf("set: ");
+		for (int j = 0; j < set->count; j++)
+		{
+			printf("%d ", set->set[j]);
+		}
+		printf("\n");
+		printf("elements = %d\n", elements);
 		set->sum += arr[i];
 		set->count ++;
 		if (set->sum <= num)
@@ -49,6 +57,7 @@ int	powerset(int *arr, int elements, int num, t_set *set)
 			if (set->sum == num)
 			{
 				print_set(set);
+				reset_set(set);
 				i++;
 			}
 			else if (powerset(&arr[i + 1], (elements - 1 - i), num, set) == 0)
@@ -89,9 +98,18 @@ int	main(int argc, char **argv)
 	set->count = 0;
 	set->set = NULL;
 	set->sum = 0;
-	if (!powerset(arr, i, num, set))
-		return (1);
-	reset_set(set);
+	int	j = 0;
+	while (powerset(&arr[j + 1], i - 1 - j, num, set) == 0 && j < i)
+	{
+		reset_set(set);
+		j++;
+	}
+	if (j == i)
+	{
+		reset_set(set);
+		free(arr);
+		return 0;
+	}
 	free(arr);
 	return (0);
 }
