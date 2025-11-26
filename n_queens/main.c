@@ -10,67 +10,66 @@ void	handle_solution(int l, int grid[l][l])
 		{
 			if (grid[i][j] == 1)
 			{
-				fprintf(1, "%d", i);
+				fprintf(stdout, "%d", i);
 				break;
 			}	
 		}
-		if (j == (l - 1))
-			write(1, "\n", 1);
+		if (j != (l - 1))
+			fprintf(stdout, " ");
 		else
-			write(1, " ", 1);
+			fprintf(stdout, "\n");
 	}
 }
 
 int	check_grid(int l, int grid[l][l], int i, int j)
 {
-	if (j == 0)
-	{
-		if (i == 0)
-			return (1);
-		else
-		{
-			while (i >= 0)
-			{
-				if (grid[i - 1][j] == 1)
-					return (0);
-				else
-					i--;
-			}
-			return (1);
-		}
-	}
-	else
-	{
-		
-	}
+	int	up;
+	int	left;
+	int	right;
 
+	for (up = 0; up < i; up++)
+		if (grid[up][j] == 1)
+			return (0);
+
+	up = i - 1;
+	left = j - 1;
+	while (up >= 0 && left >= 0)
+	{
+		if (grid[up][left] == 1)
+			return 0;
+		up--;
+		left--;
+	}
+	up = i - 1;
+	right = j + 1;
+	while (up >= 0 && right < l)
+	{
+		if (grid[up][right] == 1)
+			return 0;
+		up--;
+		right++;
+	}
+	return (1);
 }
-/**
- * return 1 is solved,
- * return 0 is not.
- */
-int solve_queens(int l, int grid[l][l], int i)
+
+void solve_queens(int l, int grid[l][l], int i)
 {
 	int	j = 0;
 	if (i == l)
-		return (0);
+	{
+		handle_solution(l, grid);
+		return ;
+	}
 	while (j < l)
 	{
-		grid[i][j] = 1;
 		if (check_grid(l, grid, i, j))
 		{
-			if (i == l - 1)
-				return (1);
-			else if (solve_queens(l, grid, i + 1))
-				return (1);
+			grid[i][j] = 1;
+			solve_queens(l, grid, i + 1);
 		}
-		else
-		{
-			grid[i][j] = 0;
-			j++;
-		}
+		grid[i][j] = 0;
+		j++;
 	}
-	return (0);
 }
 
 void print_grid(int l, int grid[l][l])
@@ -102,14 +101,8 @@ int	main(int argc, char **argv)
 	
 	//create l * lgrid
 	int	grid[l][l];
-	int res;
-	int	x = 0;
 
 	init_grid(l, grid);
-	res = solve_queens(l, grid, x);
-	if (!res)
-		return (write(1, "\n", 1));
-	else
-		handle_solution(l, grid);
+	solve_queens(l, grid, 0);
 	return (0);
 }
