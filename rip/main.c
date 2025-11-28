@@ -1,6 +1,15 @@
 #include <unistd.h>
 #include <stdio.h> // puts(s)
 
+typedef struct s_lst
+{
+	char *s;
+	char p;
+	int min;
+	int	end;
+
+}				t_lst;
+
 int	ft_strlen(char *s)
 {
 	int	i;
@@ -29,80 +38,98 @@ int next_index_left(char *s, int i)
 	return (j);
 }
 
-int	count_part(char *s, char c)
+int	count_part(char *s, char c, int end)
 {
 	int i = 0;
+	int count = 0;
 
-	while (s[i] == c)
+	while (i < end)
 	{
-		s[i] = '_';
+		if (s[i] == c)
+			count++;
 		i++;
 	}
-	return (i);
+	return (count);
 }
 
-int	next_group_i(char *s, int i)
+int	valid_filled(t_lst *lst)
 {
-	while (s[i] == '(')
+	int i = 0;
+	while (lst->s[i] == '_')
 		i++;
-	if (!s[i])
-		return (0);
-	while (s[i] == ')')
-		i++;
-	return (i);
+	if (lst->s[i] == ')')
+		return 0;
+	return 1;
 }
 
-void solver(char *s, int i)
+
+void	solver(t_lst *lst, int i, int filled)
 {
-	if (i == ft_strlen(s))
+	int end = lst->end;
+	char *s = lst->s;
+	if (i > end - 1)
+		return ;
+	if (filled == lst->min)
 	{
-		puts(s);
+		if (valid_filled(lst))
+			printf("%s\n", lst->s);
 		return ;
 	}
-
-	int left = count_part(s + i, '(');
-	int right = count_part(s + i + left, ')');
-	int next = i + left + right;
-	if (right == 0)
-		solver(s, next);
-	else if (left - right > 0)
+	if (s[i] == lst->p)
 	{
-		int start = i;
-		int end = i + 1;
-		while (start < i + left - 1)
-		{
-			s[start] = '(';
-			while (end < i + left)
-			{
-				s[end] = '(';
-				solver(s, next);
-				s[end] = '_';
-				end++;
-			}
-			solver(s, next);
-			s[start] = '_';
-			start++;
-		}
+		s[i] = '_';
+		filled++;
+	}
+	solver(lst, i + 1, filled);
+	if (i > 0 && s[i - 1] == '_')
+	{
+		s[i - 1] = lst->p;
+		filled--;
+	}
+	solver(lst, i, filled);
+}
+
+int	check_min(t_lst *lst)
+{
+	char *s = lst->s;
+	int end = lst->end;
+	int left = count_part(s, '(', end);
+	int	right = count_part(s, ')', end);
+	if (left > right)
+	{
+		lst->p = '(';
+		return (left - right);
+	}
+	else if (left < right)
+	{
+		lst->p = ')';
+		return (right - left);
 	}
 	else
+		return (0);
+}
+
+int remove_left_end(char *s)
+{
+	int len = ft_strlen(s) - 1;
+	while (len >= 0 && s[len] == '(')
 	{
-		int start = i + left;
-		int end = start + 1;
-		while (start < i + left + right - 1)
-		{
-			s[start] = ')';
-			while (end < i + left + right)
-			{
-				s[end] = ')';
-				solver(s, next);
-				s[end] = '_';
-				end++;
-			}
-			solver(s, next);
-			s[start] = '_';
-			start++;
-		}
+		s[len] = '_';
+		len--;
 	}
+	if (len < 0)
+		return (0);
+	return (len + 1);
+}
+
+int	find_start(t_lst *lst)
+{
+	int i = 0;
+	if (lst->p == '(')
+		return (i);
+	while (lst->s[i] == '(')
+		i++;
+	return (i);
 }
 
 int	main(int argc, char **argv)
@@ -112,6 +139,21 @@ int	main(int argc, char **argv)
 	int	i = 0;
 	while (argv[1][i] == ')')
 		i++;
-	solver(argv[1] + i, 0);
+	t_lst lst;
+	lst.s = argv[1] + i;
+	lst.end = remove_left_end(lst.s);
+	if (!lst.end)
+		return 1;
+	lst.min = check_min(&lst);
+	if (lst.min == -1)
+		return 1;
+	if (lst.min == 0)
+	{
+		puts(lst.s);
+		return 0; 
+	}
+	int start = find_start(&lst);
+	printf("start = %d, end = %d, min = %d \n", start, lst.end, lst.min);
+	solver(&lst, start, 0);
 	return (0);
 }

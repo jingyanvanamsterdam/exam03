@@ -12,10 +12,10 @@ void	print_set(int *arr, int count)
 {
 	int	 i = 0;
 	printf("set is: ");
-	while (i <= count)
+	while (i < count)
 	{
 		printf("%d", arr[i]);
-		if (i == count)
+		if (i == count - 1)
 			printf("\n");
 		else
 			printf(" ");
@@ -27,7 +27,7 @@ int	calculate_sum(int *arr, int count)
 {
 	int	i = 0;
 	int	sum = 0;
-	while (i <= count)
+	while (i < count)
 	{
 		sum += arr[i];
 		i++;
@@ -37,15 +37,17 @@ int	calculate_sum(int *arr, int count)
 
 void	powerset(t_set *set, int i, int j, int *arr)
 {
-	if (i >= set->count)
-		return ;
+	if (i == set->count)
+	{
+		if (j > 0 && calculate_sum(arr, j) == set->num)
+			print_set(arr, j);
+		else if (j == 0 && set->num == 0)
+			printf("\n");
+		return;
+	}
 	arr[j] = set->set[i];
-	if (calculate_sum(arr, j) == set->num)
-		print_set(arr, j);
 	powerset(set, i + 1, j + 1, arr);
-	arr[j] = 0;
 	powerset(set, i + 1, j, arr);
-	return ;
 }
 
 int	main(int argc, char **argv)
