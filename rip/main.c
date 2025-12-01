@@ -55,21 +55,30 @@ int	count_part(char *s, char c, int end)
 int	valid_filled(t_lst *lst)
 {
 	int i = 0;
-	while (lst->s[i] == '_')
-		i++;
-	if (lst->s[i] == ')')
+	
+	int left = count_part(lst->s, '(', ft_strlen(lst->s));
+	int right = count_part(lst->s, ')', ft_strlen(lst->s));
+
+	if (left == right && left != 0)
+	{
+		while (lst->s[i] && lst->s[i] == '_')
+			i++;
+		if (lst->s[i] == ')')
+			return (0);
+		return 1;
+	}
+	else
 		return 0;
-	return 1;
 }
 
 
-void	solver(t_lst *lst, int i, int filled)
+void	solver(t_lst *lst, int i, int *filled)
 {
 	int end = lst->end;
 	char *s = lst->s;
 	if (i > end - 1)
 		return ;
-	if (filled == lst->min)
+	if ((*filled) == lst->min)
 	{
 		if (valid_filled(lst))
 			printf("%s\n", lst->s);
@@ -78,15 +87,15 @@ void	solver(t_lst *lst, int i, int filled)
 	if (s[i] == lst->p)
 	{
 		s[i] = '_';
-		filled++;
+		(*filled)++;
 	}
 	solver(lst, i + 1, filled);
-	if (i > 0 && s[i - 1] == '_')
+	if (s[i] == '_')
 	{
-		s[i - 1] = lst->p;
-		filled--;
+		s[i] = lst->p;
+		(*filled)--;
+		solver(lst, i + 1, filled);
 	}
-	solver(lst, i, filled);
 }
 
 int	check_min(t_lst *lst)
@@ -153,7 +162,7 @@ int	main(int argc, char **argv)
 		return 0; 
 	}
 	int start = find_start(&lst);
-	printf("start = %d, end = %d, min = %d \n", start, lst.end, lst.min);
-	solver(&lst, start, 0);
+	int	filled = 0;
+	solver(&lst, start, &filled);
 	return (0);
 }

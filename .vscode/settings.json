@@ -1,5 +1,14 @@
 {
 	"files.associations": {
-		"unistd.h": "c"
+		"unistd.h": "c",
+		"stdbool.h": "c",
+		"__tuple": "c",
+		"array": "c",
+		"__hash_table": "c",
+		"__split_buffer": "c",
+		"bitset": "c",
+		"initializer_list": "c",
+		"unordered_map": "c",
+		"vector": "c"
 	}
 }
